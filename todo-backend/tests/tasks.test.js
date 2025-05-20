@@ -26,9 +26,12 @@ describe('Tasks API', () => {
 
     it('should filter tasks by completed status', async () => {
       const completedTasks = [{ _id: '2', title: 'Task 2', completed: true }];
-      
+
       Task.find.mockImplementation((query) => {
-        return Promise.resolve(query && query.completed ? completedTasks : [
+        if (query && query.completed) {
+          return Promise.resolve(completedTasks);
+        }
+        return Promise.resolve([
           { _id: '1', title: 'Task 1', completed: false },
           { _id: '2', title: 'Task 2', completed: true }
         ]);
@@ -67,6 +70,7 @@ describe('Tasks API', () => {
     it('should update a task', async () => {
       const updatedTask = { _id: '1', title: 'Updated Task', completed: true };
 
+      Task.findById.mockResolvedValue(updatedTask);
       Task.findByIdAndUpdate.mockResolvedValue(updatedTask);
 
       const response = await request(app).put('/tasks/1').send({ title: 'Updated Task', completed: true });
@@ -76,6 +80,7 @@ describe('Tasks API', () => {
     });
 
     it('should return 404 for non-existent task', async () => {
+      Task.findById.mockResolvedValue(null);
       Task.findByIdAndUpdate.mockResolvedValue(null);
 
       const response = await request(app).put('/tasks/999').send({ title: 'Updated Task' });
@@ -86,15 +91,17 @@ describe('Tasks API', () => {
 
   describe('DELETE /tasks/:id', () => {
     it('should delete a task', async () => {
+      Task.findById.mockResolvedValue({ _id: '1' });
       Task.findByIdAndDelete.mockResolvedValue({ _id: '1' });
 
       const response = await request(app).delete('/tasks/1');
       
       expect(response.status).toBe(200);
-      expect(response.body.message).toBe('Task deleted successfully');
+      expect(response.body).toEqual({ message: "Task deleted successfully" });
     });
 
     it('should return 404 for non-existent task', async () => {
+      Task.findById.mockResolvedValue(null);
       Task.findByIdAndDelete.mockResolvedValue(null);
 
       const response = await request(app).delete('/tasks/999');

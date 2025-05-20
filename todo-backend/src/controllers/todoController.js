@@ -5,7 +5,15 @@ const todoController = {
   // Obter todas as tarefas
   getAllTodos: async (req, res) => {
     try {
-      const todos = await Todo.find();
+      const { completed } = req.query;
+      const filter = {};
+      
+      // Adicionar filtro por status completed se fornecido
+      if (completed !== undefined) {
+        filter.completed = completed === 'true';
+      }
+      
+      const todos = await Todo.find(filter);
       res.status(200).json(todos);
     } catch (error) {
       res.status(500).json({ error: true, message: error.message });
@@ -58,11 +66,17 @@ const todoController = {
         return res.status(404).json({ error: true, message: 'Tarefa não encontrada' });
       }
 
-      todo.title = title || todo.title;
-      todo.description = description !== undefined ? description : todo.description;
-      todo.completed = completed !== undefined ? completed : todo.completed;
+      const updateData = {};
+      if (title !== undefined) updateData.title = title;
+      if (description !== undefined) updateData.description = description;
+      if (completed !== undefined) updateData.completed = completed;
       
-      const updatedTodo = await todo.save();
+      const updatedTodo = await Todo.findByIdAndUpdate(
+        req.params.id,
+        updateData,
+        { new: true }
+      );
+      
       res.status(200).json(updatedTodo);
     } catch (error) {
       res.status(500).json({ error: true, message: error.message });
@@ -72,13 +86,15 @@ const todoController = {
   // Excluir uma tarefa
   deleteTodo: async (req, res) => {
     try {
-      const todo = await Todo.findByIdAndDelete(req.params.id);
+      const todo = await Todo.findById(req.params.id);
 
       if (!todo) {
         return res.status(404).json({ error: true, message: 'Tarefa não encontrada' });
       }
+      
+      await Todo.findByIdAndDelete(req.params.id);
 
-      res.status(200).json(todo);
+      res.status(200).json({ message: "Task deleted successfully" });
     } catch (error) {
       res.status(500).json({ error: true, message: error.message });
     }
