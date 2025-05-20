@@ -1,7 +1,7 @@
 import { createTheme } from '@mui/material/styles';
 
 // Tema personalizado com as cores especificadas
-export const theme = createTheme({
+const theme = createTheme({
     palette: {
       primary: {
         main: '#1976d2',
@@ -32,3 +32,5 @@ export const theme = createTheme({
       },
     },
   });
+
+export default theme;
