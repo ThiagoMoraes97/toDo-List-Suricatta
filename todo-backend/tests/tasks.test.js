@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../src/app');
+const { app } = require('../src/server');
 const Task = require('../src/models/Todo');
 
 jest.mock('../src/models/Todo');

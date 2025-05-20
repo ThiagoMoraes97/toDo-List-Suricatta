@@ -1,6 +1,5 @@
 const Todo = require('../models/Todo');
 
-// Controlador para operações de tarefas (todos)
 const todoController = {
   // Obter todas as tarefas
   getAllTodos: async (req, res) => {
@@ -8,7 +7,6 @@ const todoController = {
       const { completed } = req.query;
       const filter = {};
       
-      // Adicionar filtro por status completed se fornecido
       if (completed !== undefined) {
         filter.completed = completed === 'true';
       }

@@ -1,9 +1,7 @@
-// routes/todoRoutes.js
-const express = require('express');
-const router = express.Router();
+const {Router} = require('express');
+const router = Router();
 const todoController = require('../controllers/todoController');
 
-// Rotas relativas: não inclua o prefixo "/api"
 router.get('/tasks', todoController.getAllTodos);
 router.post('/tasks', todoController.createTodo);
 router.get('/tasks/:id', todoController.getTodoById);
