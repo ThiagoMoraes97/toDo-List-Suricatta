@@ -20,17 +20,17 @@ jobs:
     
     - name: Install dependencies
       run: |
-        cd backend
+        cd todo-backend
         npm ci
     
     - name: Run tests
       run: |
-        cd backend
+        cd todo-backend
         npm test
     
     - name: Run linter
       run: |
-        cd backend
+        cd todo-backend
         npm run lint || true
 
   test-frontend:
@@ -46,17 +46,17 @@ jobs:
     
     - name: Install dependencies
       run: |
-        cd frontend
+        cd todo-frontend
         npm ci
     
     - name: Run tests
       run: |
-        cd frontend
+        cd todo-frontend
         npm test -- --watchAll=false
     
     - name: Build
       run: |
-        cd frontend
+        cd todo-frontend
         npm run build
 
   build-and-push:
