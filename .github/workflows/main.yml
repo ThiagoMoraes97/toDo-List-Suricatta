@@ -91,42 +91,20 @@ jobs:
         tags: ${{ secrets.DOCKER_USERNAME }}/todo-frontend:latest
 
   deploy:
-      needs: [build-and-push]
-      runs-on: ubuntu-latest
-      if: github.ref == 'refs/heads/main'
-      steps:
-      - name: Checkout the files
-        uses: actions/checkout@v3
-
-      # IMPORTANTE: A chave SSH deve estar no formato correto no GitHub Secrets
-      # Certifique-se de que a chave privada começa com '-----BEGIN OPENSSH PRIVATE KEY-----'
-      # e termina com '-----END OPENSSH PRIVATE KEY-----'
-      # Não adicione quebras de linha extras ou espaços
-      - name: Setup SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          # Verificar formato da chave
-          if ! grep -q "BEGIN" ~/.ssh/id_rsa; then
-            echo "A chave SSH não está no formato correto. Tentando corrigir..."
-            # Tentar corrigir o formato da chave se necessário
-            sed -i 's/\\n/\n/g' ~/.ssh/id_rsa
-          fi
-          # Exibir primeiras linhas da chave para debug (sem expor conteúdo completo)
-          head -n 1 ~/.ssh/id_rsa
-          ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub || echo "Falha ao gerar chave pública"
-          cat ~/.ssh/id_rsa.pub || echo "Chave pública não disponível"
-          ssh-keyscan -H ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
-          
-      - name: Verify SSH connection
-        run: |
-          ssh -o StrictHostKeyChecking=no -v ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "echo SSH connection successful" || echo "SSH connection failed but continuing workflow"
-
-      - name: Copy Docker Compose files to EC2
-        run: |
-          scp -o StrictHostKeyChecking=no -r docker-compose.yml todo-backend/Dockerfile todo-frontend/Dockerfile config/nginx/nginx.conf ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:${{ secrets.TARGET_DIR }}
-
-      - name: Deploy application
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "cd ${{ secrets.TARGET_DIR }} && docker-compose pull && docker-compose up -d"
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Deploy to server
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          cd /home/ubuntu/todo-app
+          docker-compose pull
+          docker-compose up -d
