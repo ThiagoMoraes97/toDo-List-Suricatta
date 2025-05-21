@@ -105,6 +105,6 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.SSH_KEY }}
         script: |
-          cd /home/ubuntu/todo-app
+          cd /home/ec2-user/projects/toDo-List-Suricatta
           docker-compose pull
           docker-compose up -d
