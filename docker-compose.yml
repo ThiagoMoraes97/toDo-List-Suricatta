@@ -17,7 +17,7 @@ services:
     image: thiagomoraes97/todo-backend:latest
     restart: always
     ports:
-      - "3001:3001"
+      - "3001:3001" 
     depends_on:
       - mongodb
     environment:
@@ -33,7 +33,7 @@ services:
     depends_on:
       - backend
     environment:
-      REACT_APP_API_URL: http://backend:3001
+      REACT_APP_API_URL: /api  
 
 volumes:
   mongodb_data:
