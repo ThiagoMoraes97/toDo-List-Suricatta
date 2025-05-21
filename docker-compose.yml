@@ -14,7 +14,7 @@ services:
       MONGO_INITDB_DATABASE: todoapp
 
   backend:
-    build: ./todo-backend
+    image: thiagomoraes97/todo-backend:latest
     restart: always
     ports:
       - "3001:3001"
@@ -24,14 +24,9 @@ services:
       NODE_ENV: production
       MONGODB_URI: mongodb://admin:admin123@mongodb:27017/todoapp?authSource=admin
       PORT: 3001
-    volumes:
-      - ./todo-backend:/app
-      - /app/node_modules
 
   frontend:
-    build:
-      context: ./todo-frontend
-      dockerfile: Dockerfile
+    image: thiagomoraes97/todo-frontend:latest
     restart: always
     ports:
       - "80:80"
