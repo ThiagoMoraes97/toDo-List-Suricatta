@@ -5,7 +5,10 @@ const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 require('dotenv').config();
 
-export const app = express();
+const app = express();
+
+// Exportando para testes
+module.exports = { app };
 const PORT = process.env.PORT || 3000;
 
 // Middlewares

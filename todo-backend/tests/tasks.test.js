@@ -1,6 +1,6 @@
 const request = require('supertest');
 const { app } = require('../src/server');
-const Task = require('../src/models/Todo');
+const Todo = require('../src/models/Todo');
 
 jest.mock('../src/models/Todo');
 
@@ -16,7 +16,7 @@ describe('Tasks API', () => {
         { _id: '2', title: 'Task 2', completed: true }
       ];
       
-      Task.find.mockResolvedValue(mockTasks);
+      Todo.find.mockResolvedValue(mockTasks);
 
       const response = await request(app).get('/tasks');
       
@@ -27,7 +27,7 @@ describe('Tasks API', () => {
     it('should filter tasks by completed status', async () => {
       const completedTasks = [{ _id: '2', title: 'Task 2', completed: true }];
 
-      Task.find.mockImplementation((query) => {
+      Todo.find.mockImplementation((query) => {
         if (query && query.completed) {
           return Promise.resolve(completedTasks);
         }
@@ -40,7 +40,7 @@ describe('Tasks API', () => {
       const response = await request(app).get('/tasks?completed=true');
       
       expect(response.status).toBe(200);
-      expect(Task.find).toHaveBeenCalledWith({ completed: true });
+      expect(Todo.find).toHaveBeenCalledWith({ completed: true });
     });
   });
 
@@ -49,7 +49,7 @@ describe('Tasks API', () => {
       const newTask = { title: 'New Task', description: 'Task description' };
       const savedTask = { _id: '3', ...newTask, completed: false };
 
-      Task.create.mockResolvedValue(savedTask);
+      Todo.create.mockResolvedValue(savedTask);
 
       const response = await request(app).post('/tasks').send(newTask);
       
@@ -58,7 +58,7 @@ describe('Tasks API', () => {
     });
 
     it('should return 400 for invalid task data', async () => {
-      Task.create.mockRejectedValue(new Error('Validation error'));
+      Todo.create.mockRejectedValue(new Error('Validation error'));
 
       const response = await request(app).post('/tasks').send({ description: 'No title' });
       
@@ -70,8 +70,8 @@ describe('Tasks API', () => {
     it('should update a task', async () => {
       const updatedTask = { _id: '1', title: 'Updated Task', completed: true };
 
-      Task.findById.mockResolvedValue(updatedTask);
-      Task.findByIdAndUpdate.mockResolvedValue(updatedTask);
+      Todo.findById.mockResolvedValue(updatedTask);
+      Todo.findByIdAndUpdate.mockResolvedValue(updatedTask);
 
       const response = await request(app).put('/tasks/1').send({ title: 'Updated Task', completed: true });
       
@@ -80,8 +80,8 @@ describe('Tasks API', () => {
     });
 
     it('should return 404 for non-existent task', async () => {
-      Task.findById.mockResolvedValue(null);
-      Task.findByIdAndUpdate.mockResolvedValue(null);
+      Todo.findById.mockResolvedValue(null);
+      Todo.findByIdAndUpdate.mockResolvedValue(null);
 
       const response = await request(app).put('/tasks/999').send({ title: 'Updated Task' });
       
@@ -91,8 +91,8 @@ describe('Tasks API', () => {
 
   describe('DELETE /tasks/:id', () => {
     it('should delete a task', async () => {
-      Task.findById.mockResolvedValue({ _id: '1' });
-      Task.findByIdAndDelete.mockResolvedValue({ _id: '1' });
+      Todo.findById.mockResolvedValue({ _id: '1' });
+      Todo.findByIdAndDelete.mockResolvedValue({ _id: '1' });
 
       const response = await request(app).delete('/tasks/1');
       
@@ -101,8 +101,8 @@ describe('Tasks API', () => {
     });
 
     it('should return 404 for non-existent task', async () => {
-      Task.findById.mockResolvedValue(null);
-      Task.findByIdAndDelete.mockResolvedValue(null);
+      Todo.findById.mockResolvedValue(null);
+      Todo.findByIdAndDelete.mockResolvedValue(null);
 
       const response = await request(app).delete('/tasks/999');
       
