@@ -17,7 +17,7 @@ services:
     image: thiagomoraes97/todo-backend:latest
     restart: always
     ports:
-      - "3001:3001" 
+      - "3001:3001"
     depends_on:
       - mongodb
     environment:
@@ -26,14 +26,14 @@ services:
       PORT: 3001
 
   frontend:
-    image: thiagomoraes97/todo-frontend:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: always
     ports:
       - "80:80"
     depends_on:
       - backend
-    environment:
-      REACT_APP_API_URL: /api  
 
 volumes:
   mongodb_data:
