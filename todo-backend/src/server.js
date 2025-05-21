@@ -6,9 +6,6 @@ const connectDB = require('./config/db');
 require('dotenv').config();
 
 const app = express();
-
-// Exportando para testes
-module.exports = { app };
 const PORT = process.env.PORT || 3000;
 
 // Middlewares
@@ -36,9 +33,18 @@ app.get('/', (req, res) => {
   res.json({ message: 'API de Tarefas funcionando!' });
 });
 
-// Conectar ao MongoDB e iniciar o servidor
-connectDB().then(() => {
-  app.listen(PORT, () => {
+// Função para iniciar o servidor
+const startServer = async () => {
+  await connectDB();
+  return app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
   });
-});
+};
+
+// Exportando para testes
+module.exports = { app, startServer };
+
+// Iniciar o servidor apenas se este arquivo for executado diretamente
+if (require.main === module) {
+  startServer();
+}
