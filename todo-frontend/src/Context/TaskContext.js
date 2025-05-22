@@ -37,7 +37,6 @@ export function TaskProvider({children}) {
 
     const createTask = async () => {
         if (!newTask.title.trim()) return;
-        
         setError(null);
         try {
         const response = await api.post(`/tasks`, newTask);
