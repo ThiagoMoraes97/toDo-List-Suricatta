@@ -9,85 +9,102 @@ on:
 jobs:
   test-backend:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-      - run: |
-          cd todo-backend
-          npm ci
-      - run: |
-          cd todo-backend
-          npm test
-      - run: |
-          cd todo-backend
-          npm run lint || true
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Install dependencies
+      run: |
+        cd todo-backend
+        npm ci
+    
+    - name: Run tests
+      run: |
+        cd todo-backend
+        npm test
+    
+    - name: Run linter
+      run: |
+        cd todo-backend
+        npm run lint || true
 
   test-frontend:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-      - run: |
-          cd todo-frontend
-          npm ci
-      - run: |
-          cd todo-frontend
-          npm test -- --watchAll=false
-      - run: |
-          cd todo-frontend
-          npm run build
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Install dependencies
+      run: |
+        cd todo-frontend
+        npm ci
+    
+    - name: Run tests
+      run: |
+        cd todo-frontend
+        npm test -- --watchAll=false
+    
+    - name: Build
+      run: |
+        cd todo-frontend
+        npm run build
 
   build-and-push:
     needs: [test-backend, test-frontend]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-
+    
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_TOKEN }}
-
-      - name: Build and push backend
-        uses: docker/build-push-action@v4
-        with:
-          context: ./todo-backend
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/todo-backend:latest
-
-      - name: Build and push frontend
-        uses: docker/build-push-action@v4
-        with:
-          context: ./todo-frontend
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/todo-desafio-frontend:latest
+    - uses: actions/checkout@v3
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Login to DockerHub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_TOKEN }}
+    
+    - name: Build and push backend
+      uses: docker/build-push-action@v4
+      with:
+        context: ./todo/backend
+        push: true
+        tags: ${{ secrets.DOCKER_USERNAME }}/todo-backend:latest
+    
+    - name: Build and push frontend
+      uses: docker/build-push-action@v4
+      with:
+        context: ./todo-frontend
+        push: true
+        tags: ${{ secrets.DOCKER_USERNAME }}/todo-frontend:latest
 
   deploy:
-    needs: [build-and-push]
+    needs: build-and-push
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    
     steps:
-      - name: Deploy to server
-        uses: appleboy/ssh-action@v0.1.5
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            cd /home/ec2-user/projects/toDo-List-Suricatta
-            git pull origin main
-            docker-compose down --volumes
-            docker-compose pull
-            docker-compose up -d
+    - uses: actions/checkout@v3
+    
+    - name: Deploy to server
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          cd /home/ec2-user/projects/toDo-List-Suricatta
+          docker-compose pull
+          docker-compose up -d
