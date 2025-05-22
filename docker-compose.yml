@@ -13,7 +13,7 @@ services:
       MONGO_INITDB_DATABASE: todoapp
 
   backend:
-    image: thiagomoraes97/todo-backend:latest
+    image: thiagogmmoraes/todo-backend:latest
     ports:
       - "3001:3001"
     depends_on:
@@ -24,7 +24,7 @@ services:
       PORT: 3001
 
   frontend:
-    image: thiagomoraes97/todo-desafio-frontend:latest
+    image: thiagogmmoraes/todo-desafio-frontend:latest
     ports:
       - "80:80"
     depends_on:
