@@ -4,14 +4,13 @@ import { TaskList } from '../../components/TaskList';
 import * as Material from '@mui/material';
 import { TabPanel } from '../../components/TabPanel';
 import { useTask } from '../../hooks/useTask';
-import { Dialog } from './components/Dialog';
-import { Paper } from './components/Paper';
+import AddIcon from '@mui/icons-material/Add';
 
 export function App() {  
   const [tabValue, setTabValue] = useState(0);
 
-  const { contextStates, fetchTasks } = useTask();
-  const { tasks, loading, error } = contextStates;
+  const { contextStates, fetchTasks, createTask, setNewTask, updateTask } = useTask();
+  const { tasks, loading, error, newTask, editingTask, setEditingTask, openDialog, setOpenDialog } = contextStates;
  
   const filteredTasks = tasks.filter(task => {
     if (tabValue === 0) return true; 
@@ -20,13 +19,49 @@ export function App() {
     return true;
   });
 
+  function handleNewTaskTitle(e) {
+    setNewTask((prevState) => ({ ...prevState, title: e.target.value }));
+  }
+
+  function handleNewTaskDescription(e) {
+    setNewTask((prevState) => ({ ...prevState, description: e.target.value }));
+  }
+
   return (
     <Material.Container maxWidth="md">
       <Material.Typography variant="h3" component="h1" gutterBottom sx={{ mt: 4 }}>
         Todo List
       </Material.Typography>
 
-      <Paper />
+      <Material.Paper sx={{ p: 3, mb: 3 }}>
+        <Material.Typography variant="h6" gutterBottom>
+          Add New Task
+        </Material.Typography>
+        <Material.TextField
+          fullWidth
+          label="Task Title"
+          value={newTask.title}
+          onChange={handleNewTaskTitle}
+          sx={{ mb: 2 }}
+        />
+        <Material.TextField
+          fullWidth
+          label="Description (optional)"
+          value={newTask.description}
+          onChange={handleNewTaskDescription}
+          multiline
+          rows={2}
+          sx={{ mb: 2 }}
+        />
+        <Material.Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={createTask}
+          disabled={!newTask.title.trim()}
+        >
+          Add Task
+        </Material.Button>
+      </Material.Paper>
 
       <Material.Paper sx={{ mb: 3 }}>
         <Material.Tabs value={tabValue} onChange={(e, newValue) => setTabValue(newValue)}>
@@ -63,7 +98,30 @@ export function App() {
         </>
       )}
 
-      <Dialog />
+      <Material.Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
+        <Material.DialogTitle>Edit Task</Material.DialogTitle>
+        <Material.DialogContent>
+          <Material.TextField
+            fullWidth
+            label="Task Title"
+            value={editingTask?.title || ''}
+            onChange={(e) => setEditingTask({ ...editingTask, title: e.target.value })}
+            sx={{ mb: 2, mt: 2 }}
+          />
+          <Material.TextField
+            fullWidth
+            label="Description"
+            value={editingTask?.description || ''}
+            onChange={(e) => setEditingTask({ ...editingTask, description: e.target.value })}
+            multiline
+            rows={3}
+          />
+        </Material.DialogContent>
+        <Material.DialogActions>
+          <Material.Button onClick={() => setOpenDialog(false)}>Cancel</Material.Button>
+          <Material.Button onClick={updateTask} variant="contained">Save</Material.Button>
+        </Material.DialogActions>
+      </Material.Dialog>
 
     </Material.Container>
   ); 
