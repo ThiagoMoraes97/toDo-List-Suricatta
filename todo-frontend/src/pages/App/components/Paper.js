@@ -4,8 +4,8 @@ import AddIcon from '@mui/icons-material/Add';
 
 export function Paper() {
 
-    const { contextStates, createTask } = useTask();
-    const { newTask, setNewTask } = contextStates;
+    const { contextStates, createTask, setNewTask } = useTask();
+    const { newTask } = contextStates;
 
     return(
         <Material.Paper sx={{ p: 3, mb: 3 }}>

@@ -41,7 +41,6 @@ export function TaskProvider({children}) {
         setError(null);
         try {
         const response = await api.post(`/tasks`, newTask);
-        console.log(response)
         setTasks([response.data, ...tasks]);
         setNewTask({ title: '', description: '' });
         } catch (error) {
@@ -52,17 +51,17 @@ export function TaskProvider({children}) {
 
     const updateTask = async () => {
         try {
-        const response = await api.put(
-            `/tasks/${editingTask._id}`,
-            editingTask
-        );
-        setTasks(tasks.map(task => 
-            task._id === editingTask._id ? response.data : task
-        ));
-        setEditingTask(null);
-        setOpenDialog(false);
+            const response = await api.put(
+                `/tasks/${editingTask._id}`,
+                editingTask
+            );
+            setTasks(tasks.map(task => 
+                task._id === editingTask._id ? response.data : task
+            ));
+            setEditingTask(null);
+            setOpenDialog(false);
         } catch (error) {
-        console.error('Error updating task:', error);
+            console.error('Error updating task:', error);
         }
     };
 

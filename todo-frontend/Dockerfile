@@ -1,5 +1,5 @@
-# Etapa 1: Build do React
-FROM node:18-alpine AS build
+# Dockerfile para Frontend
+FROM node:18-alpine as build
 
 WORKDIR /app
 
@@ -7,14 +7,14 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
-
-ENV NODE_ENV=production
 RUN npm run build
 
-# Etapa 2: Servindo com Nginx
+# Nginx para servir o frontend
 FROM nginx:alpine
 
 COPY --from=build /app/build /usr/share/nginx/html
+
+# Configuração customizada do nginx
 COPY config/nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
