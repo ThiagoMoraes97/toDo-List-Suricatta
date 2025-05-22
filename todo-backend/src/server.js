@@ -9,22 +9,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middlewares
-const allowedOrigins = [
-  "http://localhost:3000",
-  "http://127.0.0.1:3000",
-  "http://3.148.108.139",
-  "http://3.148.108.139:80"
-];
-
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    if (!allowedOrigins.includes(origin)) {
-      return callback(new Error('Not allowed by CORS'), false);
-    }
-    return callback(null, true);
-  },
-  credentials: true
+  origin: ["http://localhost", "http://3.148.108.139",]
 }));
 
 
