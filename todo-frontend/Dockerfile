@@ -8,9 +8,7 @@ RUN npm ci
 
 COPY . .
 
-# Cria arquivo .env.production diretamente no container
-RUN echo "REACT_APP_API_URL=http://backend:3001" > .env.production
-
+ENV NODE_ENV=production
 RUN npm run build
 
 # Etapa 2: Servindo com Nginx
