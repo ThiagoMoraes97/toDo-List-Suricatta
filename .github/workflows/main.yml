@@ -57,6 +57,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd /home/ec2-user/projects/toDo-List-Suricatta
+            git pull origin main
             docker-compose down --volumes
             docker-compose build --no-cache
             docker-compose up -d
