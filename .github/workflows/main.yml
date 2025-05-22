@@ -1,38 +1,62 @@
-version: '3.8'
+name: CI/CD Pipeline
 
-services:
-  mongodb:
-    image: mongo:6.0
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodb_data:/data/db
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: admin123
-      MONGO_INITDB_DATABASE: todoapp
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
 
-  backend:
-    build:
-      context: ./todo-backend
-      dockerfile: Dockerfile
-    ports:
-      - "3001:3001"
-    depends_on:
-      - mongodb
-    environment:
-      NODE_ENV: production
-      MONGODB_URI: mongodb://admin:admin123@mongodb:27017/todoapp?authSource=admin
-      PORT: 3001
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - run: |
+          cd todo-backend
+          npm ci
+      - run: |
+          cd todo-backend
+          npm test
+      - run: |
+          cd todo-backend
+          npm run lint || true
 
-  frontend:
-    build:
-      context: ./todo-frontend
-      dockerfile: Dockerfile
-    ports:
-      - "80:80"
-    depends_on:
-      - backend
+  test-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - run: |
+          cd todo-frontend
+          npm ci
+      - run: |
+          cd todo-frontend
+          npm test -- --watchAll=false
+      - run: |
+          cd todo-frontend
+          npm run build
 
-volumes:
-  mongodb_data:
+  deploy:
+    needs: [test-backend, test-frontend]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /home/ec2-user/projects/toDo-List-Suricatta
+            docker-compose down --volumes
+            docker-compose build --no-cache
+            docker-compose up -d

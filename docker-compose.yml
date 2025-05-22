@@ -13,7 +13,9 @@ services:
       MONGO_INITDB_DATABASE: todoapp
 
   backend:
-    image: thiagomoraes97/todo-backend:latest
+    build:
+      context: ./todo-backend
+      dockerfile: Dockerfile
     ports:
       - "3001:3001"
     depends_on:
