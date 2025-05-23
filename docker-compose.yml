@@ -36,7 +36,7 @@ services:
     depends_on:
       - backend
     environment:
-      REACT_APP_API_URL: http://3.148.108.139:3001
+      REACT_APP_API_URL: http://3.147.64.15:3001
 
 volumes:
   mongodb_data:
